@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:jms="http://www.springframework.org/schema/jms" xmlns:lang="http://www.springframework.org/schema/lang" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd  
+   	http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.1.xsd  
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd  
+    http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd  
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd  
+    http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-3.1.xsd  
+  	http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.1.xsd  
+   	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
+  	http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.1.xsd  
+ 	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd  
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd  
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<!-- 启用Spring注解 -->
+	<context:annotation-config />
+
+	<!-- 让Spring通过自动扫描来查询和管理Bean-->
+	<!-- <context:component-scan base-package="cn.itkt">
+		@Controller委托mvc注入
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan> -->
+
+	<!-- AOP注解 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<!-- dataSource -->
+	<bean id="dataSourceMySql" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
+        <property name="maxIdleTime" value="60" />
+        <property name="maxStatements" value="0" />
+        <property name="maxStatementsPerConnection" value="0"/>
+        <property name="preferredTestQuery" value="select 1" />
+	</bean>
+	<!-- session工厂，里面可以配置Hibernate的映射文件 -->
+	<bean id="sessionFactory1" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSourceMySql" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- hibernate的方言 -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.Oracle9Dialect</prop> -->
+				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.OracleDialect</prop> -->
+				<!-- 中文查询 -->
+				<prop key="query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+				<!-- 分页设置 -->
+				<prop key="jdbc.use_scrollable_resultset">false</prop>
+				<!-- 开发的时候尽量打开true -->
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
+				<prop key="hbm2ddl.auto">create</prop>
+			</props>
+		</property>
+		<!-- 注解扫描bean -->
+		<property name="packagesToScan">
+			<list>
+				<value>cn.itkt.*.local.pojo</value>
+			</list>
+		</property>
+	</bean>
+	<!-- session工厂，里面可以配置Hibernate的映射文件 -->
+	<bean id="sessionFactory2" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSourceMySql" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- hibernate的方言 -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.OracleDialect</prop>
+				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.Oracle9Dialect</prop> -->
+				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.OracleDialect</prop> -->
+				<!-- 中文查询 -->
+				<prop key="query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+				<!-- 分页设置 -->
+				<prop key="jdbc.use_scrollable_resultset">false</prop>
+				<!-- 开发的时候尽量打开true -->
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hbm2ddl.auto">create</prop>
+			</props>
+		</property>
+		<!-- 注解扫描bean -->
+		<property name="packagesToScan">
+			<list>
+				<value>cn.itkt.*.mongodb.pojo</value>
+			</list>
+		</property>
+	</bean>
+	
+	 <!-- 动态SessionFactory -->
+    <bean id="sessionFactory" class="cn.itkt.core.DynamicSessionFactoryImpl">
+        <property name="defaultTargetSessionFactory" ref="sessionFactory1"/>
+        <property name="targetSessionFactorys">
+            <map>     
+            	<entry value-ref="sessionFactory1" key="mysql"/>
+                <entry value-ref="sessionFactory2" key="oracle"/>
+            </map> 
+        </property>
+    </bean>
+
+	<!-- 配置事务管理器 -->
+	<!-- <bean id="transactionManager" class="cn.itkt.core.DynamicTransactionManager">-->
+	<bean id="transactionManager1" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory1" />
+	</bean>
+	<bean id="transactionManager2" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory2" />
+	</bean>
+
+	
+	<aop:config>
+		<!-- 事务拦截器 -->
+		<aop:pointcut id="transactionPointCut1" expression="execution(* cn.itkt..local.service..*.*(..))" />
+		<aop:pointcut id="transactionPointCut2" expression="execution(* cn.itkt..mongodb.service.*.*(..))" />
+		<!-- <aop:pointcut id="transactionPointCut" expression="execution(* (cn.itkt..dao..* or cn.itkt..service..*).*(..))" /> -->
+		<aop:advisor pointcut-ref="transactionPointCut1" advice-ref="txAdvice1" order="2" />
+		<aop:advisor pointcut-ref="transactionPointCut2" advice-ref="txAdvice2" order="2" />
+
+		<!-- 异常拦截器 -->
+		<aop:aspect id="exceptionAspect" ref="exceptionInterceptor" order="1">
+			<aop:pointcut id="exceptionPointCut" expression="execution(* (cn.itkt..local.dao..* or cn.itkt..local.service..*).*(..)) and not execution(* (@cn.itkt.core.annotation.NotException *).*(..)) and not @annotation(cn.itkt.core.annotation.NotException)" />
+			<aop:after-throwing method="doAfterThrowing" pointcut-ref="exceptionPointCut" throwing="e" />
+		</aop:aspect>
+
+		<!-- 表现层方法拦截器 -->
+		<aop:aspect id="controllerAspect" ref="viewMethodInterceptor">
+			<aop:pointcut id="controllerPointCut" expression="execution(* cn.itkt..controller..*.*(..))" />
+			<aop:before method="doBefore" pointcut-ref="controllerPointCut" />
+			<aop:around method="doAround" pointcut-ref="controllerPointCut" />
+		</aop:aspect>
+	</aop:config>
+	
+
+	<!-- 配置事务的传播特性 -->
+	<tx:advice id="txAdvice1" transaction-manager="transactionManager1">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="submit*" propagation="REQUIRED" />
+			<tx:method name="import*" propagation="REQUIRED"/>
+			<tx:method name="sync*" propagation="REQUIRED" />
+			<tx:method name="relate*" propagation="REQUIRED" />
+			<tx:method name="findAllHotel" propagation="SUPPORTS"/>
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 配置事务的传播特性 -->
+	<tx:advice id="txAdvice2" transaction-manager="transactionManager2">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="submit*" propagation="REQUIRED" />
+			<tx:method name="import*" propagation="REQUIRED"/>
+			<tx:method name="sync*" propagation="REQUIRED" />
+			<tx:method name="relate*" propagation="REQUIRED" />
+			<tx:method name="findAllHotel" propagation="SUPPORTS"/>
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<bean id="dataSourceInterceptor" class="cn.itkt.core.DataSourceInterceptor" />
+	 <aop:config>
+		<aop:aspect id="dataSourceAspect" ref="dataSourceInterceptor">
+			<aop:pointcut id="dsMysql" expression="execution(* cn.itkt..dao.impl.*Impl.*forsecurity(..))" />
+			<aop:pointcut id="dsOracle" expression="execution(* cn.itkt..dao.impl.*Impl.*foreqijshy(..))" />
+			<aop:pointcut id="dsMysql1" expression="execution(* cn.itkt.core.dao.*BaseDao.*(..))" />
+			<aop:pointcut id="dsOracle1" expression="execution(* cn.itkt.core.dao.*BaseDaoII.*(..))" />
+			<aop:before method="setdataSourceMysql" pointcut-ref="dsMysql"/>
+			<aop:before method="setdataSourceMysql1" pointcut-ref="dsOracle"/>
+			<aop:before method="setdataSourceMysqlII" pointcut-ref="dsMysql1"/>
+			<aop:before method="setdataSourceMysql1II" pointcut-ref="dsOracle1"/>
+		</aop:aspect>
+	</aop:config>
+	 
+	<util:map id="packageMap" key-type="java.lang.String" value-type="java.lang.String">
+		<entry key="cn.itkt.hotel.local.service.impl" value="sys-00001" />
+		<entry key="cn.itkt.hotel.local.dao.impl" value="db-00001" />
+	</util:map>
+
+	<bean id="exceptionInterceptor" class="cn.itkt.core.interceptor.ExceptionInterceptor" />
+
+	<bean id="errorInfo" class="cn.itkt.core.exception.ErrorInfo" />
+
+	<bean id="viewMethodInterceptor" class="cn.itkt.core.interceptor.ViewMethodInterceptor">
+		<property name="methodTimeout" value="10000" />
+	</bean>
+
+	<bean id="propertiesFactory" class="cn.itkt.core.factory.PropertiesFactory">
+		<property name="locations">
+			<list>
+				<value>classpath:properties/*.properties</value>
+			</list>
+		</property>
+	</bean>
+</beans>

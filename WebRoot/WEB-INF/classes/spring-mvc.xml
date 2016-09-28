@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd  
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd  
+   	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+   	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射,解决@ResponseBody乱码问题 -->
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<value>text/html;charset=UTF-8</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 指定系统寻找controller路径 -->
+	<!-- <mvc:annotation-driven validator="validator" conversion-service="conversionService">
+		<mvc:message-converters>
+		
+			<bean class="cn.itkt.core.handler.JsonAbstractHttpMessageConverter">
+				<property name="serializerFeature">
+					<list>
+						<value>WriteMapNullValue</value>
+						<value>QuoteFieldNames</value>
+						<value>WriteDateUseDateFormat</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+
+	</mvc:annotation-driven>
+
+	自定义日期转换器
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="cn.itkt.core.conver.StringToDateConverter"></bean>
+			</list>
+		</property>
+	</bean> -->
+
+	<!-- Spring MVC @Controller注入 -->
+	<!-- <context:component-scan base-package="cn.itkt.*">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan> -->
+	
+	<mvc:annotation-driven/>
+	<context:component-scan base-package="cn.itkt.*" />
+	<bean id="mspring" class="magon.s.application.MSpringApplication">
+		<property name="actions">
+			<list>
+				<value>redis</value>
+			</list>
+		</property>
+		<property name="timeout">
+			<value>-1</value>
+		</property>
+	</bean>
+
+	<!-- 放过导入的JS CSS 图片等文件 -->
+	<mvc:resources location="/static/" mapping="/static/**" cache-period="31556926" />
+
+	<!-- 配置注解用的本地化文件 -->
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" p:validationMessageSource-ref="messageSource" />
+
+	<!-- 本地化文件配置 -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource" p:fallbackToSystemLocale="true" p:useCodeAsDefaultMessage="false" p:defaultEncoding="UTF-8" p:cacheSeconds="3600">
+		<property name="basenames">
+			<list>
+				<value>classpath:validation</value>
+				<value>classpath:exception</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 数据效验-->
+	<bean id="validatorAspect" class="cn.itkt.core.interceptor.AopValidate">
+		<property name="validator" ref="validator" />
+	</bean>
+
+	<aop:config>
+		<aop:aspect ref="validatorAspect">
+			<aop:around method="doBasicProfiling" pointcut="@annotation(org.springframework.web.bind.annotation.RequestMapping)" />
+		</aop:aspect>
+	</aop:config>
+
+	<!-- 文件上传解析器-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" p:defaultEncoding="UTF-8" />
+
+	<!-- 视图解析类,基于jsp和jstl基础之上解析 -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- Excel 解析器 -->
+	<bean id="xmlViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver">
+		<property name="order" value="3" />
+		<property name="location" value="classpath:views.xml" />
+	</bean>
+</beans>

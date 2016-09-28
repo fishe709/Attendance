@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table name="CP_TRUCKTYPE" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="ID" />
+		</primary-key>
+	</table>
+	<table name="LS_TRUCKLIST" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="ID" />
+		</primary-key>
+	</table>
+	<table name="LS_TRUCK_DRIVER" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="BILLDTLID" />
+		</primary-key>
+	</table>
+	<table name="OM_LOGISTICS_ORDER_H" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="BILLID" />
+		</primary-key>
+	</table>
+	<table name="TM_CARGO_LOAD_H" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="BILLID" />
+		</primary-key>
+	</table>
+	<table name="TM_DISPATCH_H" schema="ERIJSHY">
+		<primary-key>
+			<key-column name="BILLID" />
+		</primary-key>
+	</table>
+<table name="LS_TRUCKTRAIL_DRIVER" schema="ERIJSHY">
+	<primary-key>
+		<key-column name="BILLDTLID" />
+	</primary-key>
+</table>
+</hibernate-reverse-engineering>
